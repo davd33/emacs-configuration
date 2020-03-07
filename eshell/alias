@@ -1,0 +1,41 @@
+alias mvnDependencySearchClassPath mvn dependency:build-classpath -Dmdep.outputFile=/tmp/~home.mm785.dependencysearchclasspath ; cat /tmp/~home.mm785.dependencysearchclasspath > #'mvn-dependency-search-class-path ; for jar in (split-string mvn-dependency-search-class-path ":") { echo $jar ; unzip -v $jar | grep $* }
+alias sg_cleanBuildStart goto_sg;sg_test_mvnCleanInstallSkip;goto_jboss_sg;jboss_run
+alias sg_buildStart goto_sg;sg_test_mvnInstallSkip;goto_jboss_sg;jboss_run
+alias sg_test_mvnInstallSkip mvn -Ptest -Dmaven.test.skip=true install
+alias sg_test_mvnCleanInstallSkip mvn -Ptest -Dmaven.test.skip=true clean install
+alias vr_start goto_jboss_vr;jboss_run
+alias vr_dev_mvnInstallSkip mvn -Pdev -Dmaven.test.skip=true install
+alias vr_dev_mvnCleanInstallSkip mvn -Pdev -Dmaven.test.skip=true clean install
+alias vr_cleanBuildStart goto_vr;vr_dev_mvnCleanInstallSkip;goto_jboss_vr;jboss_run
+alias vr_buildStart goto_vr;vr_dev_mvnInstallSkip;goto_jboss_vr;jboss_run
+alias sg_start goto_jboss_sg;jboss_run
+alias sg_dev_mvnInstallSkip mvn -Pdev -Dmaven.test.skip=true install
+alias sg_dev_mvnCleanInstallSkip mvn -Pdev -Dmaven.test.skip=true clean install
+alias psa ps aux
+alias ll ls $*
+alias l ls -l $*
+alias goto_vr cd /home/mm785/projects/cs.register/register
+alias goto_sigma cd ~/projects/cs.sigma/sigma
+alias goto_sg cd ~/projects/cs.sigma/sigma
+alias goto_jboss_sg cd ~/apps/jboss-eap-7.1.1-sg
+alias goto_jboss_vr cd ~/apps/jboss-eap-7.1.1-vr
+alias goto_fitnesse cd /home/mm785/projects/cs.ifs_fitnesse
+alias goto_amq cd ~/apps/apache-activemq-5.15.11
+alias fitnesse_run mvn compile dependency:build-classpath exec:java -DskipTests  --settings buildenv.maven.settings.xml -P fitnesse
+alias fitnesse_cleanRun mvn clean compile dependency:build-classpath exec:java -DskipTests  --settings buildenv.maven.settings.xml -P fitnesse
+alias ert ls -lrt
+alias eert ls -lart
+alias ee ls -la
+alias ed find-file $1
+alias e ls -l $*
+alias cl clear
+alias cd.. cd ..
+alias b cd -
+alias amq_stop ~/apps/apache-activemq-5.15.11/bin/activemq stop
+alias amq_status ~/apps/apache-activemq-5.15.11/bin/activemq status
+alias amq_start ~/apps/apache-activemq-5.15.11/bin/activemq console
+alias amq_log cat ~/apps/apache-activemq-5.15.11/data/activemq.log
+alias aliases cat ~/.emacs.d/eshell/alias
+alias jboss_run ./bin/standalone.sh
+alias set_java11 export PATH="/home/mm785/apps/idea-IU-193.6015.39/jbr/bin:$PATH";export JAVA_HOME=/home/mm785/apps/idea-IU-193.6015.39/jbr
+alias goto_rg-gate cd /sudo:rg-gate.ifs.dev.dbgcloud.io:/local/vestbin

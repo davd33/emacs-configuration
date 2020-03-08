@@ -1,6 +1,10 @@
 ;;; init.el --- My emacs configuration
 ;;; Commentary:
 ;;; Code:
+
+;; Local Libs
+(add-to-list 'load-path "~/.emacs.d/lisp")
+
 ;; My identity
 (setq user-full-name "David Rueda"
       user-mail-address "davd33@gmail.com")

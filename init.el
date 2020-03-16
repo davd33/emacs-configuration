@@ -2,6 +2,176 @@
 ;;; Commentary:
 ;;; Code:
 
+;; Packages
+(defvar davd33/packages '(;; SHELL
+                          exec-path-from-shell
+                          ;; THEMING
+                          (doom-themes :config
+                                       (load-theme 'doom-one t)
+                                       (doom-themes-visual-bell-config))
+                          ;; UI
+                          diminish      ; don't show current minor modes
+                          (ace-window :init
+                                      (global-set-key (kbd "M-o") 'ace-window))
+                          smart-mode-line-powerline-theme
+                          (smart-mode-line :config
+                                           (setq sml/theme 'powerline)
+                                           (add-hook 'after-init-hook 'sml/setup))
+                          ;; EDITOR
+                          (expand-region :bind
+                                         ("M-m" . er/expand-region))
+                          (crux :bind
+                                ("C-k" . crux-smart-kill-line)
+                                ("C-c n" . crux-cleanup-buffer-or-region)
+                                ("C-c f" . crux-recentf-find-file)
+                                ("C-a" . crux-move-beginning-of-line))
+                          (which-key :diminish which-key-mode
+                                     :config
+                                     (which-key-mode +1))
+                          (avy :bind
+                               ("C-=" . avy-goto-char)
+                               :config
+                               (setq avy-background t))
+                          (company :diminish company-mode
+                                   :config
+                                   (add-hook 'after-init-hook #'global-company-mode))
+                          (flycheck :diminish flycheck-mode
+                                    :config
+                                    (add-hook 'after-init-hook #'global-flycheck-mode))
+                          (multiple-cursors :config
+                                            ;; When you have an active region that spans multiple lines,
+                                            ;; the following will add a cursor to each line:
+                                            (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+                                            ;; When you want to add multiple cursors not based on
+                                            ;; continuous lines, but based on keywords in the buffer, use:
+                                            (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+                                            (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+                                            (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
+                          ;; NETWORKING
+                          (tramp :config (add-to-list 'tramp-default-proxies-alist
+                                                      '(".*" "\\`root\\'" "/ssh:%h:")))
+                          ;; WORD ;)
+                          (org :config
+                               (setq org-src-tab-acts-natively t))
+                          ;; PROJECTS
+                          (magit :bind
+                                 (("C-M-g" . magit-status))
+                                 :init
+                                 (global-set-key (kbd "C-c g g") 'helm-grep-do-git-grep))
+                          (projectile :diminish projectile-mode
+                                      :bind
+                                      (("C-c p f" . helm-projectile-find-file)
+                                       ("C-c p p" . helm-projectile-switch-project)
+                                       ("C-c p s" . projectile-save-project-buffers)
+                                       ("C-c p b" . helm-projectile))
+                                      :config
+                                      (projectile-mode +1))
+                          (helm :defer 2
+                                :bind
+                                ("M-x" . helm-M-x)
+                                ("C-x C-f" . helm-find-files)
+                                ("M-y" . helm-show-kill-ring)
+                                ("C-x b" . helm-mini)
+                                :config
+                                (require 'helm-config)
+                                (helm-mode 1)
+                                (setq helm-split-window-inside-p t
+                                      helm-move-to-line-cycle-in-source t)
+                                (setq helm-autoresize-max-height 0)
+                                (setq helm-autoresize-min-height 20)
+                                (helm-autoresize-mode 1)
+                                ;; rebind tab to run persistent action
+                                (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+                                ;; make TAB work in terminal
+                                (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+                                ;; list actions using C-z
+                                (define-key helm-map (kbd "C-z")  'helm-select-action))
+                          (helm-projectile :config
+                                           (helm-projectile-on))
+                          ag
+                          (neotree :config ; change for sidebar (see below, line ~298)
+                                   (setq neo-window-fixed-size nil)
+                                   (global-set-key [f8] 'neotree-toggle))
+                          hydra
+                          ;; SIDEBAR
+                          dash
+                          dash-functional
+                          s
+                          ov
+                          (frame-local :config
+                                       ;; FONT LOCK+
+                                       (add-to-list 'load-path "/home/mm785/.emacs.d/font-lock+.el")
+                                       (require 'font-lock+)
+                                       ;; ICONS IN TERMINAL
+                                       (add-to-list 'load-path "~/.local/share/icons-in-terminal/")
+                                       ;; SIDEBAR
+                                       (add-to-list 'load-path "~/projects/sidebar.el/")
+                                       (require 'sidebar)
+                                       (global-set-key (kbd "C-c x f") 'sidebar-open)
+                                       (global-set-key (kbd "C-c x a") 'sidebar-buffers-open))
+                          ;; PDF
+                          pdf-tools
+                          ;; REST
+                          (restclient :config
+                                      (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode)))
+                          ;; MARKDOWN
+                          (markdown-mode :commands (markdown-mode gfm-mode)
+                                         :mode (("README\\.md\\'" . gfm-mode)
+                                                ("\\.md\\'" . markdown-mode)
+                                                ("\\.markdown\\'" . markdown-mode)))
+                          ;; JAVA
+                          (autodisass-java-bytecode :defer t)
+                          (google-c-style :defer t
+                                          :commands
+                                          (google-set-c-style))
+                          (meghanada :defer t
+                                     :init
+                                     (add-hook 'java-mode-hook
+                                               (lambda ()
+                                                 (google-set-c-style)
+                                                 (google-make-newline-indent)
+                                                 (meghanada-mode t)
+                                                 (smartparens-mode t)
+                                                 (rainbow-delimiters-mode t)
+                                                 (highlight-symbol-mode t)
+                                                 (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+
+                                     :config
+                                     (use-package realgud
+                                       :ensure t)
+                                     (setq indent-tabs-mode nil)
+                                     (setq tab-width 2)
+                                     (setq c-basic-offset 2)
+                                     (setq meghanada-server-remote-debug t)
+                                     (setq meghanada-javac-xlint "-Xlint:all,-processing")
+                                     (setq meghanada-java-path "java")
+                                     ;; (setq meghanada-jvm-option "")
+                                     (setq meghanada-maven-path "mvn")
+                                     :bind
+                                     (:map meghanada-mode-map
+                                           ("C-S-t" . meghanada-switch-testcase)
+                                           ("M-RET" . meghanada-local-variable)
+                                           ("C-M-." . helm-imenu)
+                                           ("M-r" . meghanada-reference)
+                                           ("M-t" . meghanada-typeinfo)
+                                           ("C-z" . hydra-meghanada/body))
+                                     :commands
+                                     (meghanada-mode))
+                          ;; LISP
+                          (smartparens :diminish smartparens-mode
+                                       :config
+                                       (progn
+                                         (require 'smartparens-config)
+                                         (smartparens-global-mode 1)
+                                         (show-paren-mode t)))
+                          paredit
+                          (slime :config
+                                 (setq inferior-lisp-program "ros -Q run")
+                                 (load (expand-file-name "~/.roswell/helper.el")))
+                          slime-company
+                          slime-repl-ansi-color
+                          ))
+
 ;; Local Libs
 (add-to-list 'load-path "~/.emacs.d/lisp")
 
@@ -27,10 +197,38 @@
 (eval-when-compile
   (require 'use-package))
 
-;; shell environment
-(use-package exec-path-from-shell
-  :ensure t
-  :demand t)
+(defun davd33/package-name (package)
+  "Return the name of a package from a package definition.
+PACKAGE: [p-list shaped|symbol] package definition."
+  (if (listp package)
+      (car package)
+    package))
+
+(defun davd33/use-package (package)
+  "Call use-package as defined in the given package definition.
+PACKAGE: [p-list shaped|symbol] package definition."
+  (cl-labels ((gen-use-package-call (p)
+                                    (if (listp p)
+                                        `(use-package ,(davd33/package-name p)
+                                           ,@(cdr p))
+                                      `(use-package ,(davd33/package-name p)))))
+    (eval (gen-use-package-call package))))
+
+(defun davd33/packages-installed-p ()
+  "Return non-nil if all packages in davd33/packages are insalled, return nil otherwise."
+  (cl-loop for p in davd33/packages
+           when (not (package-installed-p (davd33/package-name p)))
+           do (cl-return nil)
+           finally (cl-return t)))
+
+(unless (davd33/packages-installed-p)
+  (message "%s" "Refreshing package database...")
+  (dolist (p davd33/packages)
+    (when (not (package-installed-p (davd33/package-name p)))
+      (package-install (davd33/package-name p)))))
+
+(cl-loop for p in davd33/packages
+     do (davd33/use-package p))
 
 ;; Visual
 ;(menu-bar-mode -1)
@@ -46,35 +244,18 @@
 (size-indication-mode t)
 
 ;; no start-up page
-(setq inhibit-startup-screen t)
+;(setq inhibit-startup-screen t)
 
 ;; show full path of current file
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
            (abbreviate-file-name (buffer-file-name))
-         "%b"))))
+           "%b"))))
 
 ;; scrolling improvements
 (setq scroll-margin 0
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
-
-;; theming - visual-studio-like
-(use-package doom-themes
-  :ensure t
-  :config
-  (load-theme 'doom-one t)
-  (doom-themes-visual-bell-config))
-
-;; smart mode line - it's sexy
-(use-package smart-mode-line-powerline-theme
-  :ensure t)
-
-(use-package smart-mode-line
-  :ensure t
-  :config
-  (setq sml/theme 'powerline)
-  (add-hook 'after-init-hook 'sml/setup))
 
 ;; give a home to emacs' backup files
 (setq backup-directory-alist
@@ -90,150 +271,6 @@
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 (add-hook 'before-save-hook 'whitespace-cleanup)
 
-;; don't show current minor modes
-(use-package diminish
-         :ensure t)
-
-;; smartparens
-(use-package smartparens
-  :ensure t
-  :diminish smartparens-mode
-  :config
-  (progn
-    (require 'smartparens-config)
-    (smartparens-global-mode 1)
-    (show-paren-mode t)))
-
-;; select expand region
-(use-package expand-region
-  :ensure t
-  :bind ("M-m" . er/expand-region))
-
-;; better defaults
-(use-package crux
-  :ensure t
-  :bind
-  ("C-k" . crux-smart-kill-line)
-  ("C-c n" . crux-cleanup-buffer-or-region)
-  ("C-c f" . crux-recentf-find-file)
-  ("C-a" . crux-move-beginning-of-line))
-
-;; which key?
-(use-package which-key
-  :ensure t
-  :diminish which-key-mode
-  :config
-  (which-key-mode +1))
-
-;; avy - goto char
-(use-package avy
-  :ensure t
-  :bind
-  ("C-=" . avy-goto-char)
-  :config
-  (setq avy-background t))
-
-;; company - autocomplete
-(use-package company
-  :ensure t
-  :diminish company-mode
-  :config
-  (add-hook 'after-init-hook #'global-company-mode))
-
-(use-package flycheck
-  :ensure t
-  :diminish flycheck-mode
-  :config
-  (add-hook 'after-init-hook #'global-flycheck-mode))
-
-;; org mode
-(use-package org
-  :ensure t
-  :config
-  (setq org-src-tab-acts-natively t))
-
-;; git - magit
-(use-package magit
-  :ensure t
-  :demand t
-  :bind
-  (("C-M-g" . magit-status))
-  :init
-  (global-set-key (kbd "C-c g g") 'helm-grep-do-git-grep))
-
-;; projects - projectile
-(use-package projectile
-  :ensure t
-  :diminish projectile-mode
-  :bind
-  (("C-c p f" . helm-projectile-find-file)
-   ("C-c p p" . helm-projectile-switch-project)
-   ("C-c p s" . projectile-save-project-buffers)
-   ("C-c p b" . helm-projectile))
-  :config
-  (projectile-mode +1))
-
-;; helm
-(use-package helm
-  :ensure t
-  :defer 2
-  :bind
-  ("M-x" . helm-M-x)
-  ("C-x C-f" . helm-find-files)
-  ("M-y" . helm-show-kill-ring)
-  ("C-x b" . helm-mini)
-  :config
-  (require 'helm-config)
-  (helm-mode 1)
-  (setq helm-split-window-inside-p t
-    helm-move-to-line-cycle-in-source t)
-  (setq helm-autoresize-max-height 0)
-  (setq helm-autoresize-min-height 20)
-  (helm-autoresize-mode 1)
-  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
-  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB work in terminal
-  (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
-  )
-
-;; ag search
-(use-package ag
-  :ensure t
-  :demand t)
-
-;; tree view
-(use-package neotree
-  :ensure t
-  :demand t
-  :config
-  (setq neo-window-fixed-size nil)
-  (global-set-key [f8] 'neotree-toggle))
-
-;; hydra
-(use-package hydra
-  :ensure t
-  :demand t)
-
-;; sidebar - dependencies
-;; (add-to-list 'load-path "/home/mm785/.emacs.d/font-lock+.el")
-;; (require 'font-lock+)
-;; (use-package dash
-;;   :ensure t)
-;; (use-package dash-functional
-;;   :ensure t)
-;; (use-package s
-;;   :ensure t)
-;; (use-package ov
-;;   :ensure t)
-;; (use-package frame-local
-;;   :ensure t)
-
-;; sidebar
-;; (add-to-list 'load-path "~/.local/share/icons-in-terminal/") ;; If it's not already done
-;; (add-to-list 'load-path "~/projects/sidebar.el/")
-;; (require 'sidebar)
-;; (global-set-key (kbd "C-c x f") 'sidebar-open)
-;; (global-set-key (kbd "C-c x a") 'sidebar-buffers-open)
-
 ;; XML lint
 (defun xml-pretty-print (beg end &optional arg)
   "Reformat the region between BEG and END.
@@ -241,54 +278,6 @@ With optional ARG, also auto-fill."
   (interactive "*r\nP")
   (shell-command-on-region beg end "xmllint --format -" (current-buffer)))
 (global-set-key (kbd "C-c x f") 'xml-pretty-print)
-
-;; java
-(use-package autodisass-java-bytecode
-  :ensure t
-  :defer t)
-
-(use-package google-c-style
-  :defer t
-  :ensure t
-  :commands
-  (google-set-c-style))
-
-(use-package meghanada
-  :defer t
-  :init
-  (add-hook 'java-mode-hook
-            (lambda ()
-              (google-set-c-style)
-              (google-make-newline-indent)
-              (meghanada-mode t)
-              (smartparens-mode t)
-              (rainbow-delimiters-mode t)
-              (highlight-symbol-mode t)
-              (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
-
-  :config
-  (use-package realgud
-    :ensure t)
-  (setq indent-tabs-mode nil)
-  (setq tab-width 2)
-  (setq c-basic-offset 2)
-  (setq meghanada-server-remote-debug t)
-  (setq meghanada-javac-xlint "-Xlint:all,-processing")
-  ;;(setq meghanada-java-path "java")
-  (setq meghanada-java-path "/home/mm785/apps/idea-IU-193.6015.39/jbr/bin/java")
-  ;;(setq meghanada-java-path "/home/mm785/apps/jdk1.8.0_241/bin/java")
-  ;; (setq meghanada-jvm-option "")
-  (setq meghanada-maven-path "mvn")
-  :bind
-  (:map meghanada-mode-map
-        ("C-S-t" . meghanada-switch-testcase)
-        ("M-RET" . meghanada-local-variable)
-        ("C-M-." . helm-imenu)
-        ("M-r" . meghanada-reference)
-        ("M-t" . meghanada-typeinfo)
-        ("C-z" . hydra-meghanada/body))
-  :commands
-  (meghanada-mode))
 
 (defhydra hydra-meghanada (:hint nil :exit t)
 "
@@ -326,36 +315,8 @@ _q_: exit
   ("q" exit)
   ("z" nil "leave"))
 
-;; multiple cursors
-(use-package multiple-cursors
-  :demand t
-  :ensure t
-  :config
-  ;; When you have an active region that spans multiple lines, the following will add a cursor to each line:
-  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-  ;; When you want to add multiple cursors not based on continuous lines, but based on keywords in the buffer, use:
-  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-  (global-set-key (kbd "C-c t j") 'set-justification-full))
-
 ;; duplicate lines
 (global-set-key (kbd "C-c M-d") 'crux-duplicate-current-line-or-region)
-
-;; helm - projectile
-(use-package helm-projectile
-  :ensure t
-  :config
-  (helm-projectile-on))
-
-;; ace window
-(use-package ace-window
-  :ensure t
-  :init (global-set-key (kbd "M-o") 'ace-window))
-
-;; pdf tools
-(use-package pdf-tools
-  :ensure t)
 
 ;; eshell
 (defun eshell-new()
@@ -363,52 +324,14 @@ _q_: exit
   (interactive)
   (eshell 'N))
 
-;; REST client
-(use-package restclient
-  :ensure t
-  :demand t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode)))
-
-;; markdown
-(use-package markdown-mode
-  :ensure t
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  ;:init (setq markdown-command ".../pandoc.exe")
-  )
-
 ;; redo
 (require 'redo+)
 (global-set-key (kbd "C-?") 'redo)
-
-;; COMMON LISP - SLIME
-(use-package slime
-  :ensure t
-  :config
-  ;; ROSWELL
-  (setq inferior-lisp-program "ros -Q run")
-  (load (expand-file-name "~/.roswell/helper.el"))
-  ;(setq inferior-lisp-program "sbcl")
-  ;(load (expand-file-name "~/quicklisp/slime-helper.el"))
-  )
-(use-package slime-company
-  :ensure t)
-(use-package slime-repl-ansi-color
-  :ensure t)
 
 ;; proxy
 ;; (setq url-proxy-services '(("no_proxy" . "localhost")
 ;;                            ("http" . "http://")
 ;;                            ("https" . "http://")))
-
-;; tramp | sudo on remote host
-(use-package tramp
-  :ensure t
-  :config (add-to-list 'tramp-default-proxies-alist
-                       '(".*" "\\`root\\'" "/ssh:%h:")))
 
 ;; Environment PATH
 ;; (setq exec-path
@@ -427,7 +350,7 @@ _q_: exit
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
+    ("99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "1ed5c8b7478d505a358f578c00b58b430dde379b856fbcb60ed8d345fc95594e" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
  '(package-selected-packages
    (quote
     (redo+ redo slime-repl-ansi-color slime-company slime markdown-mode restclient pdf-tools ace-window helm-projectile multiple-cursors google-c-style autodisass-java-bytecode hydra neotree ag helm projectile magit which-key use-package smartparens smart-mode-line-powerline-theme git-commit flycheck expand-region exec-path-from-shell doom-themes diminish crux company avy))))
@@ -437,3 +360,4 @@ _q_: exit
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'set-goal-column 'disabled nil)

@@ -8,6 +8,8 @@
         complete-symbol
         crux-move-beginning-of-line
         forward-sexp
+        helm-mini
+        helm-show-kill-ring
         kill-region
         query-replace-regexp
         restclient-toggle-body-visibility-or-indent

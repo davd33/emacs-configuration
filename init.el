@@ -5,12 +5,16 @@
 ;; Packages
 (defvar davd33/packages '(;; SHELL
                           exec-path-from-shell
+                          ;; QUELPA PACKAGE MANAGER
+                          quelpa
                           ;; THEMING
                           (doom-themes :config
-                                       (load-theme 'doom-one t)
+                                       ;;(load-theme 'doom-one t)
+                                       ;;(load-theme 'doom-acario-light t)
+                                       (load-theme 'doom-Iosvkem t)
                                        (doom-themes-visual-bell-config))
                           ;; UI
-                          diminish      ; don't show current minor modes
+                          diminish    ; don't show current minor modes
                           (ace-window :init
                                       (global-set-key (kbd "M-o") 'ace-window))
                           smart-mode-line-powerline-theme
@@ -35,6 +39,9 @@
                           (company :diminish company-mode
                                    :config
                                    (add-hook 'after-init-hook #'global-company-mode))
+                          (auto-complete :init
+                                         (require 'auto-complete-config)
+                                         (ac-config-default))
                           (flycheck :diminish flycheck-mode
                                     :config
                                     (add-hook 'after-init-hook #'global-flycheck-mode))
@@ -53,6 +60,7 @@
                           ;; WORD ;)
                           (org :config
                                (setq org-src-tab-acts-natively t))
+                          htmlize
                           ;; PROJECTS
                           (magit :bind
                                  (("C-M-g" . magit-status))
@@ -98,17 +106,17 @@
                           dash-functional
                           s
                           ov
-                          (frame-local :config
-                                       ;; FONT LOCK+
-                                       (add-to-list 'load-path "/home/mm785/.emacs.d/font-lock+.el")
-                                       (require 'font-lock+)
-                                       ;; ICONS IN TERMINAL
-                                       (add-to-list 'load-path "~/.local/share/icons-in-terminal/")
-                                       ;; SIDEBAR
-                                       (add-to-list 'load-path "~/projects/sidebar.el/")
-                                       (require 'sidebar)
-                                       (global-set-key (kbd "C-c x f") 'sidebar-open)
-                                       (global-set-key (kbd "C-c x a") 'sidebar-buffers-open))
+                          ;; (frame-local :config
+                          ;;              ;; FONT LOCK+
+                          ;;              (add-to-list 'load-path "/home/mm785/.emacs.d/font-lock+.el")
+                          ;;              (require 'font-lock+)
+                          ;;              ;; ICONS IN TERMINAL
+                          ;;              (add-to-list 'load-path "~/.local/share/icons-in-terminal/")
+                          ;;              ;; SIDEBAR
+                          ;;              (add-to-list 'load-path "~/projects/sidebar.el/")
+                          ;;              (require 'sidebar)
+                          ;;              (global-set-key (kbd "C-c x f") 'sidebar-open)
+                          ;;              (global-set-key (kbd "C-c x a") 'sidebar-buffers-open))
                           ;; PDF
                           pdf-tools
                           ;; REST
@@ -166,10 +174,21 @@
                                          (show-paren-mode t)))
                           paredit
                           (slime :config
+                                 (slime-setup '(slime-fancy))
                                  (setq inferior-lisp-program "ros -Q run")
                                  (load (expand-file-name "~/.roswell/helper.el")))
                           slime-company
                           slime-repl-ansi-color
+                          (ac-slime :config
+                                    (add-hook 'slime-mode-hook 'set-up-slime-ac)
+                                    (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+                                    (add-hook 'common-lisp-mode-hook 'set-up-slime-ac)
+                                    (eval-after-load "auto-complete"
+                                      '(add-to-list 'ac-modes 'slime-repl-mode)))
+                          ;; MATRIX CHAT
+                          ;; (matrix-client
+                          ;;  :quelpa (matrix-client :fetcher github :repo "alphapapa/matrix-client.el"
+                          ;;                         :files (:defaults "logo.png" "matrix-client-standalone.el.sh")))
                           ))
 
 ;; Local Libs
@@ -235,6 +254,8 @@ PACKAGE: [p-list shaped|symbol] package definition."
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
+(add-to-list 'default-frame-alist '(font . "Fira Code-15"))
+(set-face-attribute 'default t :font "Fira Code-15")
 
 ;; Helpers
 (global-hl-line-mode +1)
@@ -279,6 +300,7 @@ With optional ARG, also auto-fill."
   (shell-command-on-region beg end "xmllint --format -" (current-buffer)))
 (global-set-key (kbd "C-c x f") 'xml-pretty-print)
 
+;; JAVA
 (defhydra hydra-meghanada (:hint nil :exit t)
 "
 ^Edit^                           ^Tast or Task^
@@ -316,7 +338,7 @@ _q_: exit
   ("z" nil "leave"))
 
 ;; duplicate lines
-(global-set-key (kbd "C-c M-d") 'crux-duplicate-current-line-or-region)
+(global-set-key (kbd "M-RET l d") 'crux-duplicate-current-line-or-region)
 
 ;; eshell
 (defun eshell-new()
@@ -327,6 +349,30 @@ _q_: exit
 ;; redo
 (require 'redo+)
 (global-set-key (kbd "C-?") 'redo)
+
+;; LISP MODES
+(setq lisp-modes '(lisp-mode
+                   emacs-lisp-mode
+                   common-lisp-mode
+                   ;scheme-mode
+                   ;clojure-mode
+                   ))
+
+(defvar lisp-power-map (make-keymap))
+(define-minor-mode lisp-power-mode "Fix keybindings; add power."
+  :lighter " (power)"
+  :keymap lisp-power-map
+  (paredit-mode t))
+(define-key lisp-power-map [delete] 'paredit-forward-delete)
+(define-key lisp-power-map [backspace] 'paredit-backward-delete)
+
+(defun davd33/engage-lisp-power ()
+  "Activate LISP power mode."
+  (lisp-power-mode t))
+
+(dolist (mode lisp-modes)
+  (add-hook (intern (format "%s-hook" mode))
+            #'davd33/engage-lisp-power))
 
 ;; proxy
 ;; (setq url-proxy-services '(("no_proxy" . "localhost")
@@ -350,7 +396,7 @@ _q_: exit
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "1ed5c8b7478d505a358f578c00b58b430dde379b856fbcb60ed8d345fc95594e" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
+    ("bc836bf29eab22d7e5b4c142d201bcce351806b7c1f94955ccafab8ce5b20208" "1d50bd38eed63d8de5fcfce37c4bb2f660a02d3dff9cbfd807a309db671ff1af" "9b01a258b57067426cc3c8155330b0381ae0d8dd41d5345b5eddac69f40d409b" "99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "1ed5c8b7478d505a358f578c00b58b430dde379b856fbcb60ed8d345fc95594e" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
  '(package-selected-packages
    (quote
     (redo+ redo slime-repl-ansi-color slime-company slime markdown-mode restclient pdf-tools ace-window helm-projectile multiple-cursors google-c-style autodisass-java-bytecode hydra neotree ag helm projectile magit which-key use-package smartparens smart-mode-line-powerline-theme git-commit flycheck expand-region exec-path-from-shell doom-themes diminish crux company avy))))
@@ -361,3 +407,5 @@ _q_: exit
  ;; If there is more than one, they won't work right.
  )
 (put 'set-goal-column 'disabled nil)
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)

@@ -16,7 +16,7 @@
                           ;; UI
                           diminish    ; don't show current minor modes
                           (ace-window :init
-                                      (global-set-key (kbd "M-o") 'ace-window))
+                                      (global-set-key (kbd "M-o") 'other-window))
                           smart-mode-line-powerline-theme
                           (smart-mode-line :config
                                            (setq sml/theme 'powerline)
@@ -33,7 +33,7 @@
                                      :config
                                      (which-key-mode +1))
                           (avy :bind
-                               ("C-=" . avy-goto-char)
+                               ("C-," . avy-goto-char)
                                :config
                                (setq avy-background t))
                           (company :diminish company-mode
@@ -58,7 +58,9 @@
                           (tramp :config (add-to-list 'tramp-default-proxies-alist
                                                       '(".*" "\\`root\\'" "/ssh:%h:")))
                           ;; WORD ;)
-                          (org :config
+                          (org :bind
+                               (("C-c C-," . avy-goto-char))
+                               :config
                                (setq org-src-tab-acts-natively t))
                           htmlize
                           ;; PROJECTS
@@ -254,8 +256,8 @@ PACKAGE: [p-list shaped|symbol] package definition."
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
-(add-to-list 'default-frame-alist '(font . "Fira Code-15"))
-(set-face-attribute 'default t :font "Fira Code-15")
+(add-to-list 'default-frame-alist '(font . "Fira Code-13"))
+(set-face-attribute 'default t :font "Fira Code-13")
 
 ;; Helpers
 (global-hl-line-mode +1)

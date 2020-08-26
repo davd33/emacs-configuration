@@ -15,8 +15,7 @@
                                        (doom-themes-visual-bell-config))
                           ;; UI
                           diminish    ; don't show current minor modes
-                          (ace-window :init
-                                      (global-set-key (kbd "M-o") 'other-window))
+                          ace-window
                           smart-mode-line-powerline-theme
                           (smart-mode-line :config
                                            (setq sml/theme 'powerline)
@@ -45,19 +44,11 @@
                           (flycheck :diminish flycheck-mode
                                     :config
                                     (add-hook 'after-init-hook #'global-flycheck-mode))
-                          (multiple-cursors :config
-                                            ;; When you have an active region that spans multiple lines,
-                                            ;; the following will add a cursor to each line:
-                                            (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-                                            ;; When you want to add multiple cursors not based on
-                                            ;; continuous lines, but based on keywords in the buffer, use:
-                                            (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-                                            (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-                                            (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
+                          multiple-cursors
                           ;; NETWORKING
                           (tramp :config (add-to-list 'tramp-default-proxies-alist
                                                       '(".*" "\\`root\\'" "/ssh:%h:")))
-                          ;; WORD ;)
+                          ;; ORG-MODE
                           (org :bind
                                (("C-c C-," . avy-goto-char))
                                :config
@@ -65,9 +56,7 @@
                           htmlize
                           ;; PROJECTS
                           (magit :bind
-                                 (("C-M-g" . magit-status))
-                                 :init
-                                 (global-set-key (kbd "C-c g g") 'helm-grep-do-git-grep))
+                                 (("C-M-g" . magit-status)))
                           (projectile :diminish projectile-mode
                                       :bind
                                       (("C-c p f" . helm-projectile-find-file)
@@ -100,8 +89,7 @@
                                            (helm-projectile-on))
                           ag
                           (neotree :config ; change for sidebar (see below, line ~298)
-                                   (setq neo-window-fixed-size nil)
-                                   (global-set-key [f8] 'neotree-toggle))
+                                   (setq neo-window-fixed-size nil))
                           hydra
                           ;; SIDEBAR
                           dash
@@ -287,7 +275,6 @@ PACKAGE: [p-list shaped|symbol] package definition."
 (global-auto-revert-mode t)
 (setq-default tab-width 4
               indent-tabs-mode nil)
-(global-set-key (kbd "C-x k") 'kill-this-buffer)
 (add-hook 'before-save-hook 'whitespace-cleanup)
 
 ;; EMAIL
@@ -311,13 +298,13 @@ PACKAGE: [p-list shaped|symbol] package definition."
         ("/[Gmail].Trash"     . ?t)))
 
 ;; allow for updating mail using 'U' in the main view:
-(setq mu4e-get-mail-command "getmail")
+(setq mu4e-get-mail-command "getmail --quiet")
 
 (setq mu4e-mu-home "/home/pi/.mu-cache")
 
 ;; Identity
 (setq user-full-name "David Rueda"
-      user-mail-address "my@mail"
+      user-mail-address "davd33@gmail.com"
       message-signature
       (concat
        "David Rueda\n"
@@ -332,10 +319,20 @@ PACKAGE: [p-list shaped|symbol] package definition."
    starttls-use-gnutls t
    smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
    smtpmail-auth-credentials
-     '(("smtp.gmail.com" 587 "my@mail" nil))
+     '(("smtp.gmail.com" 587 "davd33@gmail.com" nil))
    smtpmail-default-smtp-server "smtp.gmail.com"
    smtpmail-smtp-server "smtp.gmail.com"
    smtpmail-smtp-service 587)
+
+;; MAIL & ORG-MODE
+(require 'org-mu4e)
+
+;; store link to message if in header view, not to header query
+(setq org-mu4e-link-query-in-headers-mode nil)
+
+(setq org-capture-templates
+      '(("t" "todo" entry (file+headline "~/todo.org" "Tasks")
+         "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")))
 
 ;; XML lint
 (defun xml-pretty-print (beg end &optional arg)
@@ -343,7 +340,6 @@ PACKAGE: [p-list shaped|symbol] package definition."
 With optional ARG, also auto-fill."
   (interactive "*r\nP")
   (shell-command-on-region beg end "xmllint --format -" (current-buffer)))
-(global-set-key (kbd "C-c x f") 'xml-pretty-print)
 
 ;; JAVA
 (defhydra hydra-meghanada (:hint nil :exit t)
@@ -382,9 +378,6 @@ _q_: exit
   ("q" exit)
   ("z" nil "leave"))
 
-;; duplicate lines
-(global-set-key (kbd "M-RET l d") 'crux-duplicate-current-line-or-region)
-
 ;; eshell
 (defun eshell-new()
   "Open a new instance of eshell."
@@ -393,7 +386,6 @@ _q_: exit
 
 ;; redo
 (require 'redo+)
-(global-set-key (kbd "C-?") 'redo)
 
 ;; LISP MODES
 (setq lisp-modes '(lisp-mode
@@ -428,6 +420,33 @@ _q_: exit
 ;; (setq exec-path
 ;;       (append exec-path
 ;;               (list "/home/davd/apps/apache-activemq-5.15.8/bin:$PATH")))
+
+;; GLOBAL CUSTOM KEYBINDINGS
+;; move to next window
+(global-set-key (kbd "M-o") 'other-window)
+;; kill current buffer
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
+;; redo
+(global-set-key (kbd "C-?") 'redo)
+;; When you have an active region that spans multiple lines,
+;; the following will add a cursor to each line:
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+;; When you want to add multiple cursors not based on
+;; continuous lines, but based on keywords in the buffer, use:
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+;; open/close tree panel
+(global-set-key [f8] 'neotree-toggle)
+;; magit grep
+(global-set-key (kbd "M-RET g g") 'helm-grep-do-git-grep)
+;; pretty print xml
+(global-set-key (kbd "M-RET x p p") 'xml-pretty-print)
+;; duplicate lines
+(global-set-key (kbd "M-RET e d l") 'crux-duplicate-current-line-or-region)
+;; email create todo
+(global-set-key (kbd "M-RET m t") 'mu4e-org-store-and-capture)
+(global-set-key (kbd "M-RET m i") 'mu4e-update-index)
 
 ;; daemon mode
 (require 'server)

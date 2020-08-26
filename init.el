@@ -447,6 +447,7 @@ _q_: exit
 ;; email create todo
 (global-set-key (kbd "M-RET m t") 'mu4e-org-store-and-capture)
 (global-set-key (kbd "M-RET m i") 'mu4e-update-index)
+(global-set-key (kbd "M-RET m m") 'mu4e)
 
 ;; daemon mode
 (require 'server)

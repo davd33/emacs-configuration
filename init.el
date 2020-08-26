@@ -196,10 +196,6 @@
 ;; Local Libs
 (add-to-list 'load-path "~/.emacs.d/lisp")
 
-;; My identity
-(setq user-full-name "David Rueda"
-      user-mail-address "davd33@gmail.com")
-
 ;; Memory (RAM / files)
 (setq gc-cons-threshold 50000000)
 (setq large-file-warning-threshold 100000000)
@@ -267,7 +263,7 @@ PACKAGE: [p-list shaped|symbol] package definition."
 (size-indication-mode t)
 
 ;; no start-up page
-;(setq inhibit-startup-screen t)
+(setq inhibit-startup-screen t)
 
 ;; show full path of current file
 (setq frame-title-format
@@ -293,6 +289,53 @@ PACKAGE: [p-list shaped|symbol] package definition."
               indent-tabs-mode nil)
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 (add-hook 'before-save-hook 'whitespace-cleanup)
+
+;; EMAIL
+(setq load-path (append load-path '("/usr/local/share/emacs/site-lisp/mu4e")))
+(require 'mu4e)
+
+;; default
+(setq mu4e-maildir (expand-file-name "~/mail/"))
+
+(setq mu4e-drafts-folder "/[Gmail].Drafts")
+(setq mu4e-sent-folder   "/[Gmail].Sent Mail")
+(setq mu4e-trash-folder  "/[Gmail].Trash")
+
+;; don't save message to Sent Messages, GMail/IMAP will take care of this
+(setq mu4e-sent-messages-behavior 'delete)
+
+;; setup some handy shortcuts
+(setq mu4e-maildir-shortcuts
+      '(("/INBOX"             . ?i)
+        ("/[Gmail].Sent Mail" . ?s)
+        ("/[Gmail].Trash"     . ?t)))
+
+;; allow for updating mail using 'U' in the main view:
+(setq mu4e-get-mail-command "getmail")
+
+(setq mu4e-mu-home "/home/pi/.mu-cache")
+
+;; Identity
+(setq user-full-name "David Rueda"
+      user-mail-address "my@mail"
+      message-signature
+      (concat
+       "David Rueda\n"
+       "http://davd33.org/\n"))
+
+;; sending mail -- replace USERNAME with your gmail username
+;; also, make sure the gnutls command line utils are installed
+;; package 'gnutls-bin' in Debian/Ubuntu, 'gnutls' in Archlinux.
+
+(require 'smtpmail)
+(setq message-send-mail-function 'smtpmail-send-it
+   starttls-use-gnutls t
+   smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+   smtpmail-auth-credentials
+     '(("smtp.gmail.com" 587 "my@mail" nil))
+   smtpmail-default-smtp-server "smtp.gmail.com"
+   smtpmail-smtp-server "smtp.gmail.com"
+   smtpmail-smtp-service 587)
 
 ;; XML lint
 (defun xml-pretty-print (beg end &optional arg)

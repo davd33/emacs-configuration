@@ -25,6 +25,7 @@
         paredit-wrap-round
         query-replace-regexp
         restclient-toggle-body-visibility-or-indent
+        sh-assignment
         slime-autodoc-space
         slime-compile-and-load-file
         slime-compile-defun

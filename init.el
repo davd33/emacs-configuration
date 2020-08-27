@@ -448,6 +448,8 @@ _q_: exit
 (global-set-key (kbd "M-RET m t") 'mu4e-org-store-and-capture)
 (global-set-key (kbd "M-RET m i") 'mu4e-update-index)
 (global-set-key (kbd "M-RET m m") 'mu4e)
+;; org mode
+(global-set-key (kbd "M-RET o a") 'org-agenda)
 
 ;; daemon mode
 (require 'server)

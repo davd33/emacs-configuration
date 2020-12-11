@@ -191,12 +191,15 @@
                            (add-hook 'js2-mode-hook
                                      (lambda ()
                                        (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))))
-                          ((company-tern :config-group :js)
+                          ((tern :config-group :js)
                            :config
-                           (add-to-list 'company-backends 'company-tern)
-                           (add-hook 'js2-mode-hook (lambda ()
-                                                      (tern-mode)
-                                                      (company-mode))))
+                           (add-hook 'js2-mode-hook (lambda () (tern-mode t)))
+                           (eval-after-load 'tern
+                             '(progn
+                                (require 'tern-auto-complete)
+                                (tern-ac-setup))))
+                          ((tern-auto-complete :config-group :js))
+                          ((tern-context-coloring :config-group :js))
                           ;; MATRIX CHAT
                           ;; (matrix-client
                           ;;  :quelpa (matrix-client :fetcher github :repo "alphapapa/matrix-client.el"

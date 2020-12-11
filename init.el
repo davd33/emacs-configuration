@@ -206,9 +206,10 @@
                           ;;                         :files (:defaults "logo.png" "matrix-client-standalone.el.sh")))
                           ))
 
-;; Javascript configuration
+;; Javascript configuration - a bit old
 ;; https://emacs.cafe/emacs/javascript/setup/2017/04/23/emacs-setup-javascript.html
 ;; https://emacs.cafe/emacs/javascript/setup/2017/05/09/emacs-setup-javascript-2.html
+;; For tern, should read https://ternjs.net/doc/manual.html#emacs
 
 ;; It should be possible to disable some packages.
 ;; Exclude some configuration groups by theme (js, java...).
@@ -533,12 +534,11 @@ _q_: exit
  (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
  ;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
  ;; unbind it.
- (define-key js-mode-map (kbd "M-.") nil)
+ ;; (define-key js-mode-map (kbd "M-.") nil)
  ;; kill line without errors
- (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
  ;; Disable completion keybindings, as we use xref-js2 instead
- (define-key tern-mode-keymap (kbd "M-.") nil)
- (define-key tern-mode-keymap (kbd "M-,") nil)
+ ;; (define-key tern-mode-keymap (kbd "M-.") nil)
+ ;; (define-key tern-mode-keymap (kbd "M-,") nil)
  )
 
 ;; daemon mode

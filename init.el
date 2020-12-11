@@ -2,14 +2,6 @@
 ;;; Commentary:
 ;;; Code:
 
-;; It should be possible to disable some packages.
-;; Exclude some configuration groups by theme (js, java...).
-(defvar davd33/config-exclude '(;;:basics
-                ;;:js
-                :java
-                ;;:mails
-                ))
-
 ;; Packages
 (defvar davd33/packages '(;; SHELL
                           exec-path-from-shell
@@ -127,13 +119,13 @@
                                                 ("\\.markdown\\'" . markdown-mode)))
                           ;; JAVA
                           ((autodisass-java-bytecode :config-group :java)
-               :defer t)
+                           :defer t)
                           ((google-c-style :config-group :java)
-               :defer t
+                           :defer t
                            :commands
                            (google-set-c-style))
                           ((meghanada :config-group :java)
-               :defer t
+                           :defer t
                            :init
                            (add-hook 'java-mode-hook
                                      (lambda ()
@@ -188,14 +180,30 @@
                                       '(add-to-list 'ac-modes 'slime-repl-mode)))
                           ;; JAVASCRIPT
                           ((js2-mode :config-group :js)
-               :config
-               (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-               (add-hook 'js2-mode-hook #'js2-imenu-extras-mode))
+                           :config
+                           (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+                           (add-hook 'js2-mode-hook #'js2-imenu-extras-mode))
+                          ((js2-refactor :config-group :js)
+                           :config
+                           (add-hook 'js2-mode-hook #'js2-refactor-mode))
+                          ((xref-js2 :config-group :js)
+                           :config
+                           (add-hook 'js2-mode-hook
+                                     (lambda ()
+                                       (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))))
                           ;; MATRIX CHAT
                           ;; (matrix-client
                           ;;  :quelpa (matrix-client :fetcher github :repo "alphapapa/matrix-client.el"
                           ;;                         :files (:defaults "logo.png" "matrix-client-standalone.el.sh")))
                           ))
+
+;; It should be possible to disable some packages.
+;; Exclude some configuration groups by theme (js, java...).
+(defvar davd33/config-exclude '(;;:basics
+                                ;;:js
+                                :java
+                                ;;:mails
+                                ))
 
 ;; Local Libs
 (add-to-list 'load-path "~/.emacs.d/lisp")
@@ -205,7 +213,7 @@
 (setq large-file-warning-threshold 100000000)
 
 ;; Package management
-(when (cl-find emacs-version '("26.1" "26.2") :test #'string=)
+(when (member emacs-version '("26.1" "26.2"))
   ;; A bug that impedes the download of packages because of TLS issues.
   (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3"))
 (require 'package)
@@ -221,10 +229,15 @@
 (eval-when-compile
   (require 'use-package))
 
+(defmacro davd33/when-config-group (config-group &rest body)
+  "Run BODY when CONFIG-GROUP is not found in DAVD33/CONFIG-EXCLUDE."
+  (when (not (memq config-group davd33/config-exclude))
+    `(progn ,@body)))
+
 (defun davd33/package-config-group (package)
-  "Return the value of the config-group of the package."
+  "Return the value of the config-group of the PACKAGE."
   (when (and (listp package)
-         (listp (car package)))
+             (listp (car package)))
     (cl-getf (cdar package) :config-group)))
 
 (defun davd33/package-name (package)
@@ -233,7 +246,7 @@ PACKAGE: [p-list shaped|symbol] package definition."
   (if (and (listp package) (listp (car package)))
       (caar package)
     (if (listp package)
-    (car package)
+        (car package)
       package)))
 
 (defun davd33/use-package (package)
@@ -256,60 +269,62 @@ PACKAGE: [p-list shaped|symbol] package definition."
 (defun davd33/select-packages (package-list excluded-config-groups)
   "Return the filtered PACKAGE-LIST from EXCLUDED-CONFIG-GROUPS."
   (cl-remove-if (lambda (p)
-          (cl-find (davd33/package-config-group p) excluded-config-groups))
-        package-list))
+                  (memq (davd33/package-config-group p) excluded-config-groups))
+                package-list))
 
 (let ((selected-packages (davd33/select-packages davd33/packages davd33/config-exclude)))
   (unless (davd33/packages-installed-p selected-packages)
     (message "%s" "Refreshing package database...")
     (dolist (p selected-packages)
       (when (not (package-installed-p (davd33/package-name p)))
-    (package-install (davd33/package-name p))))))
+        (package-install (davd33/package-name p))))))
 
 (cl-loop for p in davd33/packages
-     do (davd33/use-package p))
+         do (davd33/use-package p))
 
-;; Visual
-;(menu-bar-mode -1)
-(toggle-scroll-bar -1)
-(tool-bar-mode -1)
-(blink-cursor-mode -1)
-(add-to-list 'default-frame-alist '(font . "Fira Code-11"))
-(set-face-attribute 'default t :font "Fira Code-11")
+(davd33/when-config-group
+ :basics
+ ;; Visual
+ ;;(menu-bar-mode -1)
+ (toggle-scroll-bar -1)
+ (tool-bar-mode -1)
+ (blink-cursor-mode -1)
+ (add-to-list 'default-frame-alist '(font . "Fira Code-11"))
+ (set-face-attribute 'default t :font "Fira Code-11")
 
-;; Helpers
-(global-hl-line-mode +1)
-(line-number-mode +1)
-;(global-display-line-numbers-mode 1)
-(column-number-mode t)
-(size-indication-mode t)
+ ;; Helpers
+ (global-hl-line-mode +1)
+ (line-number-mode +1)
+ ;;(global-display-line-numbers-mode 1)
+ (column-number-mode t)
+ (size-indication-mode t)
 
-;; no start-up page
-(setq inhibit-startup-screen t)
+ ;; no start-up page
+ (setq inhibit-startup-screen t)
 
-;; show full path of current file
-(setq frame-title-format
-      '((:eval (if (buffer-file-name)
-           (abbreviate-file-name (buffer-file-name))
-           "%b"))))
+ ;; show full path of current file
+ (setq frame-title-format
+       '((:eval (if (buffer-file-name)
+                    (abbreviate-file-name (buffer-file-name))
+                  "%b"))))
 
-;; scrolling improvements
-(setq scroll-margin 0
-      scroll-conservatively 100000
-      scroll-preserve-screen-position 1)
+ ;; scrolling improvements
+ (setq scroll-margin 0
+       scroll-conservatively 100000
+       scroll-preserve-screen-position 1)
 
-;; give a home to emacs' backup files
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms
-      `((".*" ,temporary-file-directory t)))
+ ;; give a home to emacs' backup files
+ (setq backup-directory-alist
+       `((".*" . ,temporary-file-directory)))
+ (setq auto-save-file-name-transforms
+       `((".*" ,temporary-file-directory t)))
 
-;; be lazy - y/n - tabs - auto update - kill this buffer - noisy whitespaces
-(fset 'yes-or-no-p 'y-or-n-p)
-(global-auto-revert-mode t)
-(setq-default tab-width 4
-              indent-tabs-mode nil)
-(add-hook 'before-save-hook 'whitespace-cleanup)
+ ;; be lazy - y/n - tabs - auto update - kill this buffer - noisy whitespaces
+ (fset 'yes-or-no-p 'y-or-n-p)
+ (global-auto-revert-mode t)
+ (setq-default tab-width 4
+               indent-tabs-mode nil)
+ (add-hook 'before-save-hook 'whitespace-cleanup))
 
 ;; EMAIL
 (setq load-path (append load-path '("/usr/local/share/emacs/site-lisp/mu4e")))
@@ -353,13 +368,13 @@ PACKAGE: [p-list shaped|symbol] package definition."
 
 (require 'smtpmail)
 (setq message-send-mail-function 'smtpmail-send-it
-   starttls-use-gnutls t
-   smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-   smtpmail-auth-credentials
-     '(("smtp.gmail.com" 587 "davd33@gmail.com" nil))
-   smtpmail-default-smtp-server "smtp.gmail.com"
-   smtpmail-smtp-server "smtp.gmail.com"
-   smtpmail-smtp-service 587)
+      starttls-use-gnutls t
+      smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+      smtpmail-auth-credentials
+      '(("smtp.gmail.com" 587 "davd33@gmail.com" nil))
+      smtpmail-default-smtp-server "smtp.gmail.com"
+      smtpmail-smtp-server "smtp.gmail.com"
+      smtpmail-smtp-service 587)
 
 ;; MAIL & ORG-MODE
 (require 'org-mu4e)
@@ -380,7 +395,7 @@ With optional ARG, also auto-fill."
 
 ;; JAVA
 (defhydra hydra-meghanada (:hint nil :exit t)
-"
+  "
 ^Edit^                           ^Tast or Task^
 ^^^^^^-------------------------------------------------------
 _f_: meghanada-compile-file      _m_: meghanada-restart
@@ -428,8 +443,8 @@ _q_: exit
 (setq lisp-modes '(lisp-mode
                    emacs-lisp-mode
                    common-lisp-mode
-                   ;scheme-mode
-                   ;clojure-mode
+                                        ;scheme-mode
+                                        ;clojure-mode
                    ))
 
 (defvar lisp-power-map (make-keymap))
@@ -487,6 +502,14 @@ _q_: exit
 (global-set-key (kbd "M-RET m m") 'mu4e)
 ;; org mode
 (global-set-key (kbd "M-RET o a") 'org-agenda)
+;; javascript
+(davd33/when-config-group
+ :js
+ (js2r-add-keybindings-with-prefix "C-c C-r")
+ (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+ ;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
+ ;; unbind it.
+ (define-key js-mode-map (kbd "M-.") nil))
 
 ;; daemon mode
 (require 'server)

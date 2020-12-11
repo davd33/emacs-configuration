@@ -205,7 +205,9 @@
 (setq large-file-warning-threshold 100000000)
 
 ;; Package management
-(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+(when (cl-find emacs-version '("26.1" "26.2") :test #'string=)
+  ;; A bug that impedes the download of packages because of TLS issues.
+  (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3"))
 (require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
@@ -245,7 +247,7 @@ PACKAGE: [p-list shaped|symbol] package definition."
     (eval (gen-use-package-call package))))
 
 (defun davd33/packages-installed-p (package-list)
-  "Return non-nil if all packages in davd33/packages are insalled, return nil otherwise."
+  "Return non-nil if all packages in PACKAGE-LIST are installed, return nil otherwise."
   (cl-loop for p in package-list
            when (not (package-installed-p (davd33/package-name p)))
            do (cl-return nil)

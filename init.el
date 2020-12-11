@@ -509,7 +509,10 @@ _q_: exit
  (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
  ;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
  ;; unbind it.
- (define-key js-mode-map (kbd "M-.") nil))
+ (define-key js-mode-map (kbd "M-.") nil)
+ ;; kill line without errors
+ (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+ )
 
 ;; daemon mode
 (require 'server)

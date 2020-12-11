@@ -191,18 +191,28 @@
                            (add-hook 'js2-mode-hook
                                      (lambda ()
                                        (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))))
+                          ((company-tern :config-group :js)
+                           :config
+                           (add-to-list 'company-backends 'company-tern)
+                           (add-hook 'js2-mode-hook (lambda ()
+                                                      (tern-mode)
+                                                      (company-mode))))
                           ;; MATRIX CHAT
                           ;; (matrix-client
                           ;;  :quelpa (matrix-client :fetcher github :repo "alphapapa/matrix-client.el"
                           ;;                         :files (:defaults "logo.png" "matrix-client-standalone.el.sh")))
                           ))
 
+;; Javascript configuration
+;; https://emacs.cafe/emacs/javascript/setup/2017/04/23/emacs-setup-javascript.html
+;; https://emacs.cafe/emacs/javascript/setup/2017/05/09/emacs-setup-javascript-2.html
+
 ;; It should be possible to disable some packages.
 ;; Exclude some configuration groups by theme (js, java...).
 (defvar davd33/config-exclude '(;;:basics
                                 ;;:js
                                 :java
-                                ;;:mails
+                                :email
                                 ))
 
 ;; Local Libs
@@ -326,34 +336,6 @@ PACKAGE: [p-list shaped|symbol] package definition."
                indent-tabs-mode nil)
  (add-hook 'before-save-hook 'whitespace-cleanup))
 
-;; EMAIL
-(setq load-path (append load-path '("/usr/local/share/emacs/site-lisp/mu4e")))
-(require 'mu4e)
-
-;; default
-(setq mu4e-maildir (expand-file-name "~/mail/"))
-
-(setq mu4e-drafts-folder "/[Gmail].Drafts")
-(setq mu4e-sent-folder   "/[Gmail].Sent Mail")
-(setq mu4e-trash-folder  "/[Gmail].Trash")
-
-;; don't save message to Sent Messages, GMail/IMAP will take care of this
-(setq mu4e-sent-messages-behavior 'delete)
-
-;; setup some handy shortcuts
-(setq mu4e-maildir-shortcuts
-      '(("/INBOX"             . ?i)
-        ("/[Gmail].Sent Mail" . ?s)
-        ("/[Gmail].Trash"     . ?t)))
-
-;; allow for updating mail using 'U' in the main view:
-(setq mu4e-get-mail-command "getmail --quiet")
-
-(setq mu4e-mu-home "/home/pi/.mu-cache")
-
-(setq mu4e-index-cleanup t)
-(setq mu4e-index-lazy-check nil)
-
 ;; Identity
 (setq user-full-name "David Rueda"
       user-mail-address "davd33@gmail.com"
@@ -362,29 +344,63 @@ PACKAGE: [p-list shaped|symbol] package definition."
        "David Rueda\n"
        "http://davd33.org/\n"))
 
-;; sending mail -- replace USERNAME with your gmail username
-;; also, make sure the gnutls command line utils are installed
-;; package 'gnutls-bin' in Debian/Ubuntu, 'gnutls' in Archlinux.
+;; EMAIL
+(davd33/when-config-group
+ :email
 
-(require 'smtpmail)
-(setq message-send-mail-function 'smtpmail-send-it
-      starttls-use-gnutls t
-      smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-      smtpmail-auth-credentials
-      '(("smtp.gmail.com" 587 "davd33@gmail.com" nil))
-      smtpmail-default-smtp-server "smtp.gmail.com"
-      smtpmail-smtp-server "smtp.gmail.com"
-      smtpmail-smtp-service 587)
+ (setq load-path (append load-path '("/usr/local/share/emacs/site-lisp/mu4e")))
+ (require 'mu4e)
 
-;; MAIL & ORG-MODE
-(require 'org-mu4e)
+ ;; default
+ (setq mu4e-maildir (expand-file-name "~/mail/"))
 
-;; store link to message if in header view, not to header query
-(setq org-mu4e-link-query-in-headers-mode nil)
+ (setq mu4e-drafts-folder "/[Gmail].Drafts")
+ (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
+ (setq mu4e-trash-folder  "/[Gmail].Trash")
+
+ ;; don't save message to Sent Messages, GMail/IMAP will take care of this
+ (setq mu4e-sent-messages-behavior 'delete)
+
+ ;; setup some handy shortcuts
+ (setq mu4e-maildir-shortcuts
+       '(("/INBOX"             . ?i)
+         ("/[Gmail].Sent Mail" . ?s)
+         ("/[Gmail].Trash"     . ?t)))
+
+ ;; allow for updating mail using 'U' in the main view:
+ (setq mu4e-get-mail-command "getmail --quiet")
+
+ (setq mu4e-mu-home "/home/pi/.mu-cache")
+
+ (setq mu4e-index-cleanup t)
+ (setq mu4e-index-lazy-check nil)
+
+
+
+ ;; sending mail -- replace USERNAME with your gmail username
+ ;; also, make sure the gnutls command line utils are installed
+ ;; package 'gnutls-bin' in Debian/Ubuntu, 'gnutls' in Archlinux.
+
+ (require 'smtpmail)
+ (setq message-send-mail-function 'smtpmail-send-it
+       starttls-use-gnutls t
+       smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+       smtpmail-auth-credentials
+       '(("smtp.gmail.com" 587 "davd33@gmail.com" nil))
+       smtpmail-default-smtp-server "smtp.gmail.com"
+       smtpmail-smtp-server "smtp.gmail.com"
+       smtpmail-smtp-service 587)
+
+ ;; MAIL & ORG-MODE
+ (require 'org-mu4e)
+
+ ;; store link to message if in header view, not to header query
+ (setq org-mu4e-link-query-in-headers-mode nil)
+ )
 
 (setq org-capture-templates
-      '(("t" "todo" entry (file+headline "~/todo.org" "Tasks")
-         "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")))
+       '(("t" "todo" entry (file+headline "~/todo.org" "Tasks")
+          "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")))
 
 ;; XML lint
 (defun xml-pretty-print (beg end &optional arg)
@@ -394,8 +410,11 @@ With optional ARG, also auto-fill."
   (shell-command-on-region beg end "xmllint --format -" (current-buffer)))
 
 ;; JAVA
-(defhydra hydra-meghanada (:hint nil :exit t)
-  "
+(davd33/when-config-group
+ :java
+
+ (defhydra hydra-meghanada (:hint nil :exit t)
+   "
 ^Edit^                           ^Tast or Task^
 ^^^^^^-------------------------------------------------------
 _f_: meghanada-compile-file      _m_: meghanada-restart
@@ -408,27 +427,27 @@ _g_: magit-status                _T_: meghanada-typeinfo
 _l_: helm-ls-git-ls
 _q_: exit
 "
-  ("f" meghanada-compile-file)
-  ("m" meghanada-restart)
+   ("f" meghanada-compile-file)
+   ("m" meghanada-restart)
 
-  ("c" meghanada-compile-project)
-  ("o" meghanada-optimize-import)
-  ("s" meghanada-switch-test-case)
-  ("v" meghanada-local-variable)
-  ("i" meghanada-import-all)
+   ("c" meghanada-compile-project)
+   ("o" meghanada-optimize-import)
+   ("s" meghanada-switch-test-case)
+   ("v" meghanada-local-variable)
+   ("i" meghanada-import-all)
 
-  ("g" magit-status)
-  ("l" helm-ls-git-ls)
+   ("g" magit-status)
+   ("l" helm-ls-git-ls)
 
-  ("t" meghanada-run-task)
-  ("T" meghanada-typeinfo)
-  ("j" meghanada-run-junit-test-case)
-  ("J" meghanada-run-junit-class)
-  ("R" meghanada-run-junit-recent)
-  ("r" meghanada-reference)
+   ("t" meghanada-run-task)
+   ("T" meghanada-typeinfo)
+   ("j" meghanada-run-junit-test-case)
+   ("J" meghanada-run-junit-class)
+   ("R" meghanada-run-junit-recent)
+   ("r" meghanada-reference)
 
-  ("q" exit)
-  ("z" nil "leave"))
+   ("q" exit)
+   ("z" nil "leave")))
 
 ;; eshell
 (defun eshell-new()
@@ -497,9 +516,11 @@ _q_: exit
 ;; duplicate lines
 (global-set-key (kbd "M-RET e d l") 'crux-duplicate-current-line-or-region)
 ;; email create todo
-(global-set-key (kbd "M-RET m t") 'mu4e-org-store-and-capture)
-(global-set-key (kbd "M-RET m i") 'mu4e-update-index)
-(global-set-key (kbd "M-RET m m") 'mu4e)
+(davd33/when-config-group
+ :email
+ (global-set-key (kbd "M-RET m t") 'mu4e-org-store-and-capture)
+ (global-set-key (kbd "M-RET m i") 'mu4e-update-index)
+ (global-set-key (kbd "M-RET m m") 'mu4e))
 ;; org mode
 (global-set-key (kbd "M-RET o a") 'org-agenda)
 ;; javascript
@@ -512,6 +533,9 @@ _q_: exit
  (define-key js-mode-map (kbd "M-.") nil)
  ;; kill line without errors
  (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+ ;; Disable completion keybindings, as we use xref-js2 instead
+ (define-key tern-mode-keymap (kbd "M-.") nil)
+ (define-key tern-mode-keymap (kbd "M-,") nil)
  )
 
 ;; daemon mode

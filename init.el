@@ -2,6 +2,14 @@
 ;;; Commentary:
 ;;; Code:
 
+;; It should be possible to disable some packages.
+;; Exclude some configuration groups by theme (js, java...).
+(defvar davd33/config-exclude '(;;:basics
+                ;;:js
+                :java
+                ;;:mails
+                ))
+
 ;; Packages
 (defvar davd33/packages '(;; SHELL
                           exec-path-from-shell
@@ -118,43 +126,46 @@
                                                 ("\\.md\\'" . markdown-mode)
                                                 ("\\.markdown\\'" . markdown-mode)))
                           ;; JAVA
-                          (autodisass-java-bytecode :defer t)
-                          (google-c-style :defer t
-                                          :commands
-                                          (google-set-c-style))
-                          (meghanada :defer t
-                                     :init
-                                     (add-hook 'java-mode-hook
-                                               (lambda ()
-                                                 (google-set-c-style)
-                                                 (google-make-newline-indent)
-                                                 (meghanada-mode t)
-                                                 (smartparens-mode t)
-                                                 (rainbow-delimiters-mode t)
-                                                 (highlight-symbol-mode t)
-                                                 (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+                          ((autodisass-java-bytecode :config-group :java)
+               :defer t)
+                          ((google-c-style :config-group :java)
+               :defer t
+                           :commands
+                           (google-set-c-style))
+                          ((meghanada :config-group :java)
+               :defer t
+                           :init
+                           (add-hook 'java-mode-hook
+                                     (lambda ()
+                                       (google-set-c-style)
+                                       (google-make-newline-indent)
+                                       (meghanada-mode t)
+                                       (smartparens-mode t)
+                                       (rainbow-delimiters-mode t)
+                                       (highlight-symbol-mode t)
+                                       (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
 
-                                     :config
-                                     (use-package realgud
-                                       :ensure t)
-                                     (setq indent-tabs-mode nil)
-                                     (setq tab-width 2)
-                                     (setq c-basic-offset 2)
-                                     (setq meghanada-server-remote-debug t)
-                                     (setq meghanada-javac-xlint "-Xlint:all,-processing")
-                                     (setq meghanada-java-path "java")
-                                     ;; (setq meghanada-jvm-option "")
-                                     (setq meghanada-maven-path "mvn")
-                                     :bind
-                                     (:map meghanada-mode-map
-                                           ("C-S-t" . meghanada-switch-testcase)
-                                           ("M-RET" . meghanada-local-variable)
-                                           ("C-M-." . helm-imenu)
-                                           ("M-r" . meghanada-reference)
-                                           ("M-t" . meghanada-typeinfo)
-                                           ("C-z" . hydra-meghanada/body))
-                                     :commands
-                                     (meghanada-mode))
+                           :config
+                           (use-package realgud
+                             :ensure t)
+                           (setq indent-tabs-mode nil)
+                           (setq tab-width 2)
+                           (setq c-basic-offset 2)
+                           (setq meghanada-server-remote-debug t)
+                           (setq meghanada-javac-xlint "-Xlint:all,-processing")
+                           (setq meghanada-java-path "java")
+                           ;; (setq meghanada-jvm-option "")
+                           (setq meghanada-maven-path "mvn")
+                           :bind
+                           (:map meghanada-mode-map
+                                 ("C-S-t" . meghanada-switch-testcase)
+                                 ("M-RET" . meghanada-local-variable)
+                                 ("C-M-." . helm-imenu)
+                                 ("M-r" . meghanada-reference)
+                                 ("M-t" . meghanada-typeinfo)
+                                 ("C-z" . hydra-meghanada/body))
+                           :commands
+                           (meghanada-mode))
                           ;; LISP
                           (smartparens :diminish smartparens-mode
                                        :config
@@ -175,6 +186,11 @@
                                     (add-hook 'common-lisp-mode-hook 'set-up-slime-ac)
                                     (eval-after-load "auto-complete"
                                       '(add-to-list 'ac-modes 'slime-repl-mode)))
+                          ;; JAVASCRIPT
+                          ((js2-mode :config-group :js)
+               :config
+               (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+               (add-hook 'js2-mode-hook #'js2-imenu-extras-mode))
                           ;; MATRIX CHAT
                           ;; (matrix-client
                           ;;  :quelpa (matrix-client :fetcher github :repo "alphapapa/matrix-client.el"
@@ -189,10 +205,11 @@
 (setq large-file-warning-threshold 100000000)
 
 ;; Package management
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 (require 'package)
 (setq package-enable-at-startup nil)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
 (package-initialize)
 
 (unless (package-installed-p 'use-package)
@@ -202,12 +219,20 @@
 (eval-when-compile
   (require 'use-package))
 
+(defun davd33/package-config-group (package)
+  "Return the value of the config-group of the package."
+  (when (and (listp package)
+         (listp (car package)))
+    (cl-getf (cdar package) :config-group)))
+
 (defun davd33/package-name (package)
   "Return the name of a package from a package definition.
 PACKAGE: [p-list shaped|symbol] package definition."
-  (if (listp package)
-      (car package)
-    package))
+  (if (and (listp package) (listp (car package)))
+      (caar package)
+    (if (listp package)
+    (car package)
+      package)))
 
 (defun davd33/use-package (package)
   "Call use-package as defined in the given package definition.
@@ -219,18 +244,25 @@ PACKAGE: [p-list shaped|symbol] package definition."
                                       `(use-package ,(davd33/package-name p)))))
     (eval (gen-use-package-call package))))
 
-(defun davd33/packages-installed-p ()
+(defun davd33/packages-installed-p (package-list)
   "Return non-nil if all packages in davd33/packages are insalled, return nil otherwise."
-  (cl-loop for p in davd33/packages
+  (cl-loop for p in package-list
            when (not (package-installed-p (davd33/package-name p)))
            do (cl-return nil)
            finally (cl-return t)))
 
-(unless (davd33/packages-installed-p)
-  (message "%s" "Refreshing package database...")
-  (dolist (p davd33/packages)
-    (when (not (package-installed-p (davd33/package-name p)))
-      (package-install (davd33/package-name p)))))
+(defun davd33/select-packages (package-list excluded-config-groups)
+  "Return the filtered PACKAGE-LIST from EXCLUDED-CONFIG-GROUPS."
+  (cl-remove-if (lambda (p)
+          (cl-find (davd33/package-config-group p) excluded-config-groups))
+        package-list))
+
+(let ((selected-packages (davd33/select-packages davd33/packages davd33/config-exclude)))
+  (unless (davd33/packages-installed-p selected-packages)
+    (message "%s" "Refreshing package database...")
+    (dolist (p selected-packages)
+      (when (not (package-installed-p (davd33/package-name p)))
+    (package-install (davd33/package-name p))))))
 
 (cl-loop for p in davd33/packages
      do (davd33/use-package p))
@@ -240,8 +272,8 @@ PACKAGE: [p-list shaped|symbol] package definition."
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
-(add-to-list 'default-frame-alist '(font . "Fira Code-13"))
-(set-face-attribute 'default t :font "Fira Code-13")
+(add-to-list 'default-frame-alist '(font . "Fira Code-11"))
+(set-face-attribute 'default t :font "Fira Code-11")
 
 ;; Helpers
 (global-hl-line-mode +1)
@@ -301,6 +333,9 @@ PACKAGE: [p-list shaped|symbol] package definition."
 (setq mu4e-get-mail-command "getmail --quiet")
 
 (setq mu4e-mu-home "/home/pi/.mu-cache")
+
+(setq mu4e-index-cleanup t)
+(setq mu4e-index-lazy-check nil)
 
 ;; Identity
 (setq user-full-name "David Rueda"
@@ -464,6 +499,7 @@ _q_: exit
  '(custom-safe-themes
    (quote
     ("bc836bf29eab22d7e5b4c142d201bcce351806b7c1f94955ccafab8ce5b20208" "1d50bd38eed63d8de5fcfce37c4bb2f660a02d3dff9cbfd807a309db671ff1af" "9b01a258b57067426cc3c8155330b0381ae0d8dd41d5345b5eddac69f40d409b" "99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "1ed5c8b7478d505a358f578c00b58b430dde379b856fbcb60ed8d345fc95594e" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
+ '(org-agenda-files (quote ("~/Desktop/Todo.org")))
  '(package-selected-packages
    (quote
     (redo+ redo slime-repl-ansi-color slime-company slime markdown-mode restclient pdf-tools ace-window helm-projectile multiple-cursors google-c-style autodisass-java-bytecode hydra neotree ag helm projectile magit which-key use-package smartparens smart-mode-line-powerline-theme git-commit flycheck expand-region exec-path-from-shell doom-themes diminish crux company avy))))

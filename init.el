@@ -215,6 +215,7 @@
 ;; Exclude some configuration groups by theme (js, java...).
 (defvar davd33/config-exclude '(;;:basics
                                 ;;:js
+                                ;;:fullscreen
                                 :java
                                 :email
                                 ))
@@ -295,6 +296,17 @@ PACKAGE: [p-list shaped|symbol] package definition."
 
 (cl-loop for p in davd33/packages
          do (davd33/use-package p))
+
+(davd33/when-config-group
+ :fullscreen
+
+ (defun fullscreen (&optional f)
+   (interactive)
+   (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
+                          '(2 "_NET_WM_STATE_MAXIMIZED_VERT" 0))
+   (x-send-client-message nil 0 nil "_NET_WM_STATE" 32
+                          '(2 "_NET_WM_STATE_MAXIMIZED_HORZ" 0)))
+ (fullscreen))
 
 (davd33/when-config-group
  :basics

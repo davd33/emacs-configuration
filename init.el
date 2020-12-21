@@ -32,7 +32,8 @@
                                      :config
                                      (which-key-mode +1))
                           (avy :bind
-                               ("C-," . avy-goto-char)
+                               ("C-," . avy-goto-char-timer)
+                               ("C-'" . avy-goto-line)
                                :config
                                (setq avy-background t))
                           (company :diminish company-mode
@@ -170,7 +171,7 @@
                                  (slime-setup '(slime-fancy))
                                  (setq inferior-lisp-program "ros -Q run")
                                  (load (expand-file-name "~/.roswell/helper.el")))
-                          slime-company
+                          ;;slime-company
                           slime-repl-ansi-color
                           (ac-slime :config
                                     (add-hook 'slime-mode-hook 'set-up-slime-ac)
@@ -221,6 +222,7 @@
 
 ;; Local Libs
 (add-to-list 'load-path "~/.emacs.d/lisp")
+(require 'elpa-mirror)
 
 ;; Memory (RAM / files)
 (setq gc-cons-threshold 50000000)

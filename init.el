@@ -123,6 +123,7 @@
                            :defer t
                            :commands
                            (google-set-c-style))
+                          ((realgud :config-group :java))
                           ((meghanada :config-group :java)
                            :defer t
                            :init
@@ -137,8 +138,6 @@
                                        (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
 
                            :config
-                           (use-package realgud
-                             :ensure t)
                            (setq indent-tabs-mode nil)
                            (setq tab-width 2)
                            (setq c-basic-offset 2)

@@ -32,8 +32,8 @@
                                      :config
                                      (which-key-mode +1))
                           (avy :bind
-                               ("C-," . avy-goto-char-timer)
-                               ("C-'" . avy-goto-line)
+                               ("C-M-," . avy-goto-char-timer)
+                               ("C-M-'" . avy-goto-line)
                                :config
                                (setq avy-background t))
                           (company :diminish company-mode
@@ -50,9 +50,7 @@
                           (tramp :config (add-to-list 'tramp-default-proxies-alist
                                                       '(".*" "\\`root\\'" "/ssh:%h:")))
                           ;; ORG-MODE
-                          (org :bind
-                               (("C-c C-," . avy-goto-char))
-                               :config
+                          (org :config
                                (setq org-src-tab-acts-natively t))
                           htmlize
                           ;; PROJECTS

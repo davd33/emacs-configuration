@@ -32,6 +32,7 @@
                                      :config
                                      (which-key-mode +1))
                           (avy :bind
+                               ("C-," . avy-goto-char-timer)
                                ("C-M-," . avy-goto-char-timer)
                                ("C-M-'" . avy-goto-line)
                                :config
@@ -117,6 +118,8 @@
                                                 ("\\.md\\'" . markdown-mode)
                                                 ("\\.markdown\\'" . markdown-mode)))
                           ;; JAVA
+                          (lsp-java :config
+                                    (add-hook 'java-mode-hook #'lsp))
                           ((autodisass-java-bytecode :config-group :java)
                            :defer t)
                           ((google-c-style :config-group :java)
@@ -176,6 +179,19 @@
                                     (add-hook 'common-lisp-mode-hook 'set-up-slime-ac)
                                     (eval-after-load "auto-complete"
                                       '(add-to-list 'ac-modes 'slime-repl-mode)))
+                          ;; EMAIL
+                          ((mu4e-alert :config-group :email
+                                       :after mu4e
+                                       :init
+                                       (setq mu4e-alert-interesting-mail-query
+                                             (concat "flag:unread maildir:/Gmail/INBOX"))
+                                       (mu4e-alert-enable-mode-line-display)
+                                       (defun gjstein-refresh-mu4e-alert-mode-line ()
+                                         (interactive)
+                                         (mu4e~proc-kill)
+                                         (mu4e-alert-enable-mode-line-display))
+                                       (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line)
+                                       ))
                           ;; JAVASCRIPT
                           ((js2-mode :config-group :js)
                            :config
@@ -212,15 +228,24 @@
 ;; It should be possible to disable some packages.
 ;; Exclude some configuration groups by theme (js, java...).
 (defvar davd33/config-exclude '(;;:basics
-                                ;;:js
-                                ;;:fullscreen
+                                :js
+                                :fullscreen
                                 :java
-                                :email
+                                ;;:email
                                 ))
+
+(defmacro davd33/when-config-group (config-group &rest body)
+  "Run BODY when CONFIG-GROUP is not found in DAVD33/CONFIG-EXCLUDE."
+  (when (not (memq config-group davd33/config-exclude))
+    `(progn ,@body)))
 
 ;; Local Libs
 (add-to-list 'load-path "~/.emacs.d/lisp")
 (require 'elpa-mirror)
+(davd33/when-config-group
+ :email
+ (setq load-path (append load-path '("/usr/share/emacs/site-lisp/mu4e/")))
+ (require 'mu4e))
 
 ;; Memory (RAM / files)
 (setq gc-cons-threshold 50000000)
@@ -232,6 +257,7 @@
   (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3"))
 (require 'package)
 (setq package-enable-at-startup nil)
+(add-to-list 'package-archives '("mymelpa" . "~/projects/emacs-packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
 (package-initialize)
@@ -242,11 +268,6 @@
 
 (eval-when-compile
   (require 'use-package))
-
-(defmacro davd33/when-config-group (config-group &rest body)
-  "Run BODY when CONFIG-GROUP is not found in DAVD33/CONFIG-EXCLUDE."
-  (when (not (memq config-group davd33/config-exclude))
-    `(progn ,@body)))
 
 (defun davd33/package-config-group (package)
   "Return the value of the config-group of the PACKAGE."
@@ -363,11 +384,8 @@ PACKAGE: [p-list shaped|symbol] package definition."
 (davd33/when-config-group
  :email
 
- (setq load-path (append load-path '("/usr/local/share/emacs/site-lisp/mu4e")))
- (require 'mu4e)
-
  ;; default
- (setq mu4e-maildir (expand-file-name "~/mail/"))
+ (setq mu4e-maildir (expand-file-name "~/Maildir/"))
 
  (setq mu4e-drafts-folder "/[Gmail].Drafts")
  (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
@@ -383,9 +401,9 @@ PACKAGE: [p-list shaped|symbol] package definition."
          ("/[Gmail].Trash"     . ?t)))
 
  ;; allow for updating mail using 'U' in the main view:
- (setq mu4e-get-mail-command "getmail --quiet")
+ (setq mu4e-get-mail-command "offlineimap -o")
 
- (setq mu4e-mu-home "/home/pi/.mu-cache")
+ ;;(setq mu4e-mu-home "/home/pi/.mu-cache")
 
  (setq mu4e-index-cleanup t)
  (setq mu4e-index-lazy-check nil)
@@ -564,7 +582,7 @@ _q_: exit
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("bc836bf29eab22d7e5b4c142d201bcce351806b7c1f94955ccafab8ce5b20208" "1d50bd38eed63d8de5fcfce37c4bb2f660a02d3dff9cbfd807a309db671ff1af" "9b01a258b57067426cc3c8155330b0381ae0d8dd41d5345b5eddac69f40d409b" "99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "1ed5c8b7478d505a358f578c00b58b430dde379b856fbcb60ed8d345fc95594e" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
+    ("2f1518e906a8b60fac943d02ad415f1d8b3933a5a7f75e307e6e9a26ef5bf570" "f2927d7d87e8207fa9a0a003c0f222d45c948845de162c885bf6ad2a255babfd" "990e24b406787568c592db2b853aa65ecc2dcd08146c0d22293259d400174e37" "bc836bf29eab22d7e5b4c142d201bcce351806b7c1f94955ccafab8ce5b20208" "1d50bd38eed63d8de5fcfce37c4bb2f660a02d3dff9cbfd807a309db671ff1af" "9b01a258b57067426cc3c8155330b0381ae0d8dd41d5345b5eddac69f40d409b" "99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "1ed5c8b7478d505a358f578c00b58b430dde379b856fbcb60ed8d345fc95594e" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
  '(org-agenda-files (quote ("~/Desktop/Todo.org")))
  '(package-selected-packages
    (quote

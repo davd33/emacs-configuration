@@ -16,6 +16,7 @@
         helm-show-kill-ring
         indent-for-tab-command
         kill-region
+        paredit-backslash
         paredit-backward
         paredit-backward-kill-word
         paredit-forward

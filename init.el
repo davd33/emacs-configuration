@@ -9,9 +9,10 @@
                           quelpa
                           ;; THEMING
                           (doom-themes :config
-                                       ;;(load-theme 'doom-one t)
+                                       ;;(load-theme 'doom-one-light t)
+                                       (load-theme 'doom-one t)
                                        ;;(load-theme 'doom-acario-light t)
-                                       (load-theme 'doom-Iosvkem t)
+                                       ;;(load-theme 'doom-Iosvkem t)
                                        (doom-themes-visual-bell-config))
                           ;; UI
                           diminish    ; don't show current minor modes
@@ -37,9 +38,9 @@
                                ("C-M-'" . avy-goto-line)
                                :config
                                (setq avy-background t))
-                          (company :diminish company-mode
-                                   :config
-                                   (add-hook 'after-init-hook #'global-company-mode))
+                          ;; (company :diminish company-mode
+                          ;;          :config
+                          ;;          (add-hook 'after-init-hook #'global-company-mode))
                           (auto-complete :init
                                          (require 'auto-complete-config)
                                          (ac-config-default))
@@ -172,6 +173,11 @@
                                  (setq inferior-lisp-program "ros -Q run")
                                  (load (expand-file-name "~/.roswell/helper.el")))
                           ;;slime-company
+                          (lispy :config
+                                 (let ((run-lispy-mode
+                                        (lambda () (lispy-mode 1))))
+                                   (add-hook 'emacs-lisp-mode-hook run-lispy-mode)
+                                   (add-hook 'lisp-power-mode-hook run-lispy-mode)))
                           slime-repl-ansi-color
                           (ac-slime :config
                                     (add-hook 'slime-mode-hook 'set-up-slime-ac)
@@ -586,7 +592,7 @@ _q_: exit
  '(org-agenda-files (quote ("~/Desktop/Todo.org")))
  '(package-selected-packages
    (quote
-    (redo+ redo slime-repl-ansi-color slime-company slime markdown-mode restclient pdf-tools ace-window helm-projectile multiple-cursors google-c-style autodisass-java-bytecode hydra neotree ag helm projectile magit which-key use-package smartparens smart-mode-line-powerline-theme git-commit flycheck expand-region exec-path-from-shell doom-themes diminish crux company avy))))
+    (redo+ redo slime-repl-ansi-color slime markdown-mode restclient pdf-tools ace-window helm-projectile multiple-cursors google-c-style autodisass-java-bytecode hydra neotree ag helm projectile magit which-key use-package smartparens smart-mode-line-powerline-theme git-commit flycheck expand-region exec-path-from-shell doom-themes diminish crux avy))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

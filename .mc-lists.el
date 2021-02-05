@@ -10,6 +10,7 @@
         crux-move-beginning-of-line
         dabbrev-expand
         electric-newline-and-maybe-indent
+        end-of-visual-line
         forward-sexp
         helm-M-x
         helm-mini
@@ -26,6 +27,7 @@
         paredit-wrap-round
         query-replace-regexp
         restclient-toggle-body-visibility-or-indent
+        sgml-slash
         sh-assignment
         slime-autodoc-space
         slime-compile-and-load-file

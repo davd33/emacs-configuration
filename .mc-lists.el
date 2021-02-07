@@ -33,6 +33,11 @@
         slime-compile-and-load-file
         slime-compile-defun
         sp-remove-active-pair-overlay
+        special-lispy-ace-symbol
+        special-lispy-move-down
+        special-lispy-occur
+        special-lispy-tab
+        special-lispy-up
         ))
 
 (setq mc/cmds-to-run-once

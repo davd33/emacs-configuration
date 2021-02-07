@@ -376,7 +376,12 @@ PACKAGE: [p-list shaped|symbol] package definition."
  (global-auto-revert-mode t)
  (setq-default tab-width 4
                indent-tabs-mode nil)
- (add-hook 'before-save-hook 'whitespace-cleanup))
+ (add-hook 'before-save-hook 'whitespace-cleanup)
+ ;; erc auto archive
+ (setq erc-log-channels-directory "~/.erc/logs/")
+ (setq erc-save-buffer-on-part t)
+ ;; (setq erc-hide-timestamps t)
+ )
 
 ;; Identity
 (setq user-full-name "David Rueda"
@@ -589,6 +594,25 @@ _q_: exit
  '(custom-safe-themes
    (quote
     ("2f1518e906a8b60fac943d02ad415f1d8b3933a5a7f75e307e6e9a26ef5bf570" "f2927d7d87e8207fa9a0a003c0f222d45c948845de162c885bf6ad2a255babfd" "990e24b406787568c592db2b853aa65ecc2dcd08146c0d22293259d400174e37" "bc836bf29eab22d7e5b4c142d201bcce351806b7c1f94955ccafab8ce5b20208" "1d50bd38eed63d8de5fcfce37c4bb2f660a02d3dff9cbfd807a309db671ff1af" "9b01a258b57067426cc3c8155330b0381ae0d8dd41d5345b5eddac69f40d409b" "99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "1ed5c8b7478d505a358f578c00b58b430dde379b856fbcb60ed8d345fc95594e" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
+ '(erc-autojoin-channels-alist (quote ((""))))
+ '(erc-autojoin-mode t)
+ '(erc-button-mode t)
+ '(erc-fill-mode t)
+ '(erc-irccontrols-mode t)
+ '(erc-list-mode t)
+ '(erc-match-mode t)
+ '(erc-menu-mode t)
+ '(erc-move-to-prompt-mode t)
+ '(erc-netsplit-mode t)
+ '(erc-networks-mode t)
+ '(erc-noncommands-mode t)
+ '(erc-pcomplete-mode t)
+ '(erc-readonly-mode t)
+ '(erc-ring-mode t)
+ '(erc-stamp-mode t)
+ '(erc-track-minor-mode t)
+ '(erc-track-mode t)
+ '(erc-track-position-in-mode-line t)
  '(org-agenda-files (quote ("~/Desktop/Todo.org")))
  '(package-selected-packages
    (quote

@@ -127,7 +127,7 @@
                            :defer t
                            :commands
                            (google-set-c-style))
-                          ((realgud :config-group :java))
+                          (realgud)
                           ((meghanada :config-group :java)
                            :defer t
                            :init
@@ -234,7 +234,7 @@
 ;; It should be possible to disable some packages.
 ;; Exclude some configuration groups by theme (js, java...).
 (defvar davd33/config-exclude '(;;:basics
-                                :js
+                                ;; :js
                                 :fullscreen
                                 :java
                                 ;;:email
@@ -263,7 +263,7 @@
   (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3"))
 (require 'package)
 (setq package-enable-at-startup nil)
-(add-to-list 'package-archives '("mymelpa" . "~/projects/emacs-packages/"))
+;(add-to-list 'package-archives '("mymelpa" . "~/projects/emacs-packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
 (package-initialize)

@@ -23,9 +23,9 @@ alias goto_fitnesse cd /home/mm785/projects/cs.ifs_fitnesse
 alias goto_amq cd ~/apps/apache-activemq-5.15.11
 alias fitnesse_run mvn compile dependency:build-classpath exec:java -DskipTests  --settings buildenv.maven.settings.xml -P fitnesse
 alias fitnesse_cleanRun mvn clean compile dependency:build-classpath exec:java -DskipTests  --settings buildenv.maven.settings.xml -P fitnesse
-alias ert ls -lrt
-alias eert ls -lart
-alias ee ls -la
+alias ert ls -lrt $*
+alias eert ls -lart $*
+alias ee ls -la $*
 alias ed find-file $1
 alias e ls -l $*
 alias cl clear

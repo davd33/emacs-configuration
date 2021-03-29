@@ -220,6 +220,9 @@
                                 (tern-ac-setup))))
                           ((tern-auto-complete :config-group :js))
                           ((tern-context-coloring :config-group :js))
+                          ((rjsx-mode :config-group :js)
+                           :config
+                           (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode)))
                           ((tide :config-group :js)
                            :config
                            (defun setup-tide-mode ()
@@ -227,6 +230,12 @@
                              (tide-setup)
                              (flycheck-mode +1)
                              (setq flycheck-check-syntax-automatically '(save mode-enabled))
+                             (setq tide-format-options '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions
+                                                         t
+                                                         :placeOpenBraceOnNewLineForFunctions nil
+                                                         :placeOpenBraceOnNewLineForControlBlocks nil
+                                                         :indenSize 2
+                                                         :tabSize 2))
                              (eldoc-mode +1)
                              (tide-hl-identifier-mode +1)
                              ;; company is an optional dependency. You have to

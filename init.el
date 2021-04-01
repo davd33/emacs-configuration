@@ -250,6 +250,14 @@
                            (add-hook 'before-save-hook 'tide-format-before-save)
 
                            (add-hook 'typescript-mode-hook #'setup-tide-mode))
+                          ;; R
+                          ((ess :config-group :ess))
+                          ((ess-R-data-view :config-group :ess))
+                          ((ess-r-insert-obj :config-group :ess))
+                          ((ess-smart-equals :config-group :ess))
+                          ((ess-smart-underscore :config-group :ess))
+                          ((ess-view :config-group :ess))
+                          ((ess-view-data :config-group :ess))
                           ;; MATRIX CHAT
                           ;; (matrix-client
                           ;;  :quelpa (matrix-client :fetcher github :repo "alphapapa/matrix-client.el"
@@ -268,6 +276,7 @@
                                 :fullscreen
                                 :java
                                 ;;:email
+                                ;;:ess
                                 ))
 
 (defmacro davd33/when-config-group (config-group &rest body)

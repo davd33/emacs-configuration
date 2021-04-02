@@ -38,9 +38,10 @@
                                ("C-M-'" . avy-goto-line)
                                :config
                                (setq avy-background t))
-                          ;; (company :diminish company-mode
-                          ;;          :config
-                          ;;          (add-hook 'after-init-hook #'global-company-mode))
+                          (company :diminish company-mode
+                                   :config
+                                   ;; (add-hook 'after-init-hook #'global-company-mode)
+                                   )
                           (auto-complete :init
                                          (require 'auto-complete-config)
                                          (ac-config-default))
@@ -179,12 +180,12 @@
                                    (add-hook 'emacs-lisp-mode-hook run-lispy-mode)
                                    (add-hook 'lisp-power-mode-hook run-lispy-mode)))
                           slime-repl-ansi-color
-                          (ac-slime :config
-                                    (add-hook 'slime-mode-hook 'set-up-slime-ac)
-                                    (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
-                                    (add-hook 'common-lisp-mode-hook 'set-up-slime-ac)
-                                    (eval-after-load "auto-complete"
-                                      '(add-to-list 'ac-modes 'slime-repl-mode)))
+                          ;; (ac-slime :config
+                          ;;           (add-hook 'slime-mode-hook 'set-up-slime-ac)
+                          ;;           (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+                          ;;           (add-hook 'common-lisp-mode-hook 'set-up-slime-ac)
+                          ;;           (eval-after-load "auto-complete"
+                          ;;             '(add-to-list 'ac-modes 'slime-repl-mode)))
                           ;; EMAIL
                           ((mu4e-alert :config-group :email
                                        :after mu4e

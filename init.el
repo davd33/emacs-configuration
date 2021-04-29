@@ -178,7 +178,8 @@
                                  (let ((run-lispy-mode
                                         (lambda () (lispy-mode 1))))
                                    (add-hook 'emacs-lisp-mode-hook run-lispy-mode)
-                                   (add-hook 'lisp-power-mode-hook run-lispy-mode)))
+                                   (add-hook 'lisp-power-mode-hook run-lispy-mode)
+                                   (add-hook 'clojure-mode-hook run-lispy-mode)))
                           slime-repl-ansi-color
                           ;; (ac-slime :config
                           ;;           (add-hook 'slime-mode-hook 'set-up-slime-ac)
@@ -259,6 +260,9 @@
                           ((ess-smart-underscore :config-group :ess))
                           ((ess-view :config-group :ess))
                           ((ess-view-data :config-group :ess))
+                          ;; CLOJURE
+                          ((clojure-mode :config-group clojure))
+                          ((cider :config-group clojure))
                           ;; MATRIX CHAT
                           ;; (matrix-client
                           ;;  :quelpa (matrix-client :fetcher github :repo "alphapapa/matrix-client.el"
@@ -276,6 +280,7 @@
                                 ;; :js
                                 :fullscreen
                                 :java
+                ;; :clojure
                                 ;;:email
                                 ;;:ess
                                 ))

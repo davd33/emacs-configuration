@@ -5,6 +5,12 @@
 ;; Packages
 (defvar davd33/packages '(;; SHELL
                           exec-path-from-shell
+                          (eterm-256color :config
+                                          (add-hook 'term-mode-hook #'eterm-256color-mode))
+                          (vterm :commands vterm
+                                 :config
+                                 (setq term-prompt-regexp "davd@davd-tower:.*")
+                                 (setq vterm-max-scrollback 10000))
                           ;; QUELPA PACKAGE MANAGER
                           quelpa
                           ;; THEMING
@@ -21,7 +27,10 @@
                           (smart-mode-line :config
                                            (setq sml/theme 'powerline)
                                            (add-hook 'after-init-hook 'sml/setup))
+                          ;; EMACS LISP DEV
+                          helpful
                           ;; EDITOR
+                          jq-mode
                           (expand-region :bind
                                          ("M-m" . er/expand-region))
                           (crux :bind
@@ -74,19 +83,21 @@
                                 ("M-y" . helm-show-kill-ring)
                                 ("C-x b" . helm-mini)
                                 :config
-                                (require 'helm-config)
-                                (helm-mode 1)
-                                (setq helm-split-window-inside-p t
-                                      helm-move-to-line-cycle-in-source t)
-                                (setq helm-autoresize-max-height 0)
-                                (setq helm-autoresize-min-height 20)
-                                (helm-autoresize-mode 1)
-                                ;; rebind tab to run persistent action
-                                (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-                                ;; make TAB work in terminal
-                                (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-                                ;; list actions using C-z
-                                (define-key helm-map (kbd "C-z")  'helm-select-action))
+                                (add-hook 'after-init-hook
+                                          (lambda ()
+                                            (require 'helm-config)
+                                            (helm-mode 1)
+                                            (setq helm-split-window-inside-p t
+                                                  helm-move-to-line-cycle-in-source t)
+                                            (setq helm-autoresize-max-height 0)
+                                            (setq helm-autoresize-min-height 20)
+                                            (helm-autoresize-mode 1)
+                                            ;; rebind tab to run persistent action
+                                            (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+                                            ;; make TAB work in terminal
+                                            (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+                                            ;; list actions using C-z
+                                            (define-key helm-map (kbd "C-z")  'helm-select-action))))
                           (helm-projectile :config
                                            (helm-projectile-on))
                           ag
@@ -276,13 +287,13 @@
 
 ;; It should be possible to disable some packages.
 ;; Exclude some configuration groups by theme (js, java...).
-(defvar davd33/config-exclude '(;;:basics
+(defvar davd33/config-exclude '(;; :basics
                                 ;; :js
                                 :fullscreen
                                 :java
-                ;; :clojure
-                                ;;:email
-                                ;;:ess
+                :clojure
+                                ;; :email
+                                ;; :ess
                                 ))
 
 (defmacro davd33/when-config-group (config-group &rest body)
@@ -386,8 +397,8 @@ PACKAGE: [p-list shaped|symbol] package definition."
  (toggle-scroll-bar -1)
  (tool-bar-mode -1)
  (blink-cursor-mode -1)
- (add-to-list 'default-frame-alist '(font . "Fira Code-11"))
- (set-face-attribute 'default t :font "Fira Code-11")
+ (add-to-list 'default-frame-alist '(font . "Fira Code-13"))
+ (set-face-attribute 'default t :font "Fira Code-13")
 
  ;; Helpers
  (global-hl-line-mode +1)
@@ -579,9 +590,16 @@ _q_: exit
 ;; Environment PATH
 ;; (setq exec-path
 ;;       (append exec-path
-;;               (list "/home/davd/apps/apache-activemq-5.15.8/bin:$PATH")))
+;;               (list "/home/davd/bin:$PATH")))
 
 ;; GLOBAL CUSTOM KEYBINDINGS
+;; Emacs Lisp
+(global-set-key (kbd "C-h z f") #'helpful-callable)
+(global-set-key (kbd "C-h z v") #'helpful-variable)
+(global-set-key (kbd "C-h z k") #'helpful-key)
+(global-set-key (kbd "C-h z x") #'helpful-command)
+(global-set-key (kbd "C-h z .") #'helpful-at-point)
+(global-set-key (kbd "C-h z F") #'helpful-function)
 ;; move to next window
 (global-set-key (kbd "M-o") 'other-window)
 ;; kill current buffer
@@ -637,9 +655,8 @@ _q_: exit
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   (quote
-    ("2f1518e906a8b60fac943d02ad415f1d8b3933a5a7f75e307e6e9a26ef5bf570" "f2927d7d87e8207fa9a0a003c0f222d45c948845de162c885bf6ad2a255babfd" "990e24b406787568c592db2b853aa65ecc2dcd08146c0d22293259d400174e37" "bc836bf29eab22d7e5b4c142d201bcce351806b7c1f94955ccafab8ce5b20208" "1d50bd38eed63d8de5fcfce37c4bb2f660a02d3dff9cbfd807a309db671ff1af" "9b01a258b57067426cc3c8155330b0381ae0d8dd41d5345b5eddac69f40d409b" "99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "1ed5c8b7478d505a358f578c00b58b430dde379b856fbcb60ed8d345fc95594e" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
- '(erc-autojoin-channels-alist (quote ((""))))
+   '("2f1518e906a8b60fac943d02ad415f1d8b3933a5a7f75e307e6e9a26ef5bf570" "f2927d7d87e8207fa9a0a003c0f222d45c948845de162c885bf6ad2a255babfd" "990e24b406787568c592db2b853aa65ecc2dcd08146c0d22293259d400174e37" "bc836bf29eab22d7e5b4c142d201bcce351806b7c1f94955ccafab8ce5b20208" "1d50bd38eed63d8de5fcfce37c4bb2f660a02d3dff9cbfd807a309db671ff1af" "9b01a258b57067426cc3c8155330b0381ae0d8dd41d5345b5eddac69f40d409b" "99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "1ed5c8b7478d505a358f578c00b58b430dde379b856fbcb60ed8d345fc95594e" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default))
+ '(erc-autojoin-channels-alist '(("")))
  '(erc-autojoin-mode t)
  '(erc-button-mode t)
  '(erc-fill-mode t)
@@ -657,11 +674,10 @@ _q_: exit
  '(erc-stamp-mode t)
  '(erc-track-minor-mode t)
  '(erc-track-mode t)
- '(erc-track-position-in-mode-line t)
- '(org-agenda-files (quote ("~/Desktop/Todo.org")))
+ '(erc-track-position-in-mode-line t t)
+ '(org-agenda-files '("~/Desktop/Todo.org"))
  '(package-selected-packages
-   (quote
-    (redo+ redo slime-repl-ansi-color slime markdown-mode restclient pdf-tools ace-window helm-projectile multiple-cursors google-c-style autodisass-java-bytecode hydra neotree ag helm projectile magit which-key use-package smartparens smart-mode-line-powerline-theme git-commit flycheck expand-region exec-path-from-shell doom-themes diminish crux avy))))
+   '(redo+ redo slime-repl-ansi-color slime markdown-mode restclient pdf-tools ace-window helm-projectile multiple-cursors google-c-style autodisass-java-bytecode hydra neotree ag helm projectile magit which-key use-package smartparens smart-mode-line-powerline-theme git-commit flycheck expand-region exec-path-from-shell doom-themes diminish crux avy)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

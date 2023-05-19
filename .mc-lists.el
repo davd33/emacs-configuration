@@ -17,6 +17,7 @@
         helm-show-kill-ring
         indent-for-tab-command
         kill-region
+        lispy-space
         paredit-backslash
         paredit-backward
         paredit-backward-kill-word
@@ -33,6 +34,7 @@
         slime-compile-and-load-file
         slime-compile-defun
         sp-remove-active-pair-overlay
+        special-lh-knight/body
         special-lispy-ace-symbol
         special-lispy-move-down
         special-lispy-occur
